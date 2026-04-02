@@ -9,7 +9,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.post("/send-otp", async (req, res) => {
+// API Route for sending OTP
+app.post(["/api/send-otp", "/send-otp"], async (req, res) => {
   const { email, otp } = req.body;
 
   if (!email || !otp) {
