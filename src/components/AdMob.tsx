@@ -17,12 +17,15 @@ export const BannerAd: React.FC = () => {
   useEffect(() => {
     const showBanner = async () => {
       try {
+        // সামান্য দেরি করা যাতে অ্যাপের ভিউ তৈরি হতে পারে
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
         await AdMob.showBanner({
           adId: AD_UNIT_IDS.BANNER,
           adSize: BannerAdSize.BANNER,
           position: BannerAdPosition.BOTTOM_CENTER,
           margin: 0,
-          isTesting: true // Set to false for production
+          isTesting: true 
         });
       } catch (e) {
         console.error('Banner Error:', e);
@@ -36,7 +39,19 @@ export const BannerAd: React.FC = () => {
     };
   }, []);
 
-  return null; // Banner is managed by the native plugin, doesn't need React UI
+  return null; 
+};
+
+// AdMob ইনিশিয়ালাইজ করার ফাংশন
+export const initializeAdMob = async () => {
+  try {
+    await AdMob.initialize({
+      requestTrackingAuthorization: true,
+    });
+    console.log('AdMob Initialized');
+  } catch (e) {
+    console.error('AdMob Init Error:', e);
+  }
 };
 
 // Real AdMob Interstitial
@@ -126,3 +141,4 @@ export const useRewardedAd = () => {
 
   return { showRewarded, RewardedAd };
 };
+

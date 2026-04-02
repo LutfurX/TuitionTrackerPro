@@ -235,7 +235,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { BannerAd, useInterstitialAd, useRewardedAd, useAppOpenAd } from './components/AdMob';
+import { BannerAd, useInterstitialAd, useRewardedAd, useAppOpenAd, initializeAdMob } from './components/AdMob';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Types
@@ -482,6 +482,9 @@ const AppContent: React.FC = () => {
   const [showStatusToast, setShowStatusToast] = useState(false);
 
   useEffect(() => {
+    // AdMob ইনিশিয়ালাইজ করা
+    initializeAdMob();
+
     const handleOnline = () => {
       setIsOnline(true);
       setShowStatusToast(true);
