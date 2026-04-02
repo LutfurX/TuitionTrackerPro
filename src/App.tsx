@@ -52,25 +52,32 @@ const LoginModal: React.FC<{
       setGeneratedOtp(code);
 
       // EmailJS Configuration - You need to replace these with your actual IDs from emailjs.com
-      const SERVICE_ID = 'service_yzk29se'; // e.g., 'service_xxxxx'
-      const TEMPLATE_ID = 'template_t3o51dj'; // e.g., 'template_xxxxx'
-      const PUBLIC_KEY = 'gf34Vb82psslow0F5'; // e.g., 'user_xxxxx'
+      const SERVICE_ID = 'service_hlqygmo'; // e.g., 'service_xxxxx'
+      const TEMPLATE_ID = 'template_0adcs3i'; // e.g., 'template_xxxxx'
+      const PUBLIC_KEY = 'gf34Vb82psslow0F'; // e.g., 'user_xxxxx'
 
       if (SERVICE_ID === 'YOUR_SERVICE_ID') {
         throw new Error('Please configure EmailJS IDs in App.tsx first');
       }
 
       const templateParams = {
-        to_email: email,
-        otp: code,
+        to_email: email.trim(),
+        passcode: code,
+        time: new Date().toLocaleTimeString(),
       };
 
-      await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
-
-      setStep('otp');
+      try {
+        const result = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+        console.log('EmailJS Success:', result.status, result.text);
+        setStep('otp');
+      } catch (emailError: any) {
+        console.error('EmailJS Error Details:', emailError);
+        const errorMessage = emailError?.text || emailError?.message || JSON.stringify(emailError);
+        throw new Error(`EmailJS Error: ${errorMessage}`);
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to send verification code. Please check your email or try again.');
-      console.error(err);
+      console.error('Full Error Object:', err);
     } finally {
       setLoading(false);
     }
