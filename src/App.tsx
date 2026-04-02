@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import emailjs from '@emailjs/browser';
 import { 
   auth, 
   db, 
@@ -50,21 +51,21 @@ const LoginModal: React.FC<{
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       setGeneratedOtp(code);
 
-      // আপনার Vercel লিংকটি এখানে বসান
-      const API_BASE_URL = window.location.hostname === 'localhost' ? '' : 'https://https://tuition-tracker-pro-ten.vercel.app';
-      
-      const response = await fetch(`${API_BASE_URL}/api/send-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, otp: code }),
-      });
+      // EmailJS Configuration - You need to replace these with your actual IDs from emailjs.com
+      const SERVICE_ID = 'service_yzk29se'; // e.g., 'service_xxxxx'
+      const TEMPLATE_ID = 'template_t3o51dj'; // e.g., 'template_xxxxx'
+      const PUBLIC_KEY = 'gf34Vb82psslow0F5'; // e.g., 'user_xxxxx'
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to send verification code');
+      if (SERVICE_ID === 'YOUR_SERVICE_ID') {
+        throw new Error('Please configure EmailJS IDs in App.tsx first');
       }
+
+      const templateParams = {
+        to_email: email,
+        otp: code,
+      };
+
+      await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
 
       setStep('otp');
     } catch (err: any) {
