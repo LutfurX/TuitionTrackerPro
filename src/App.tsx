@@ -54,7 +54,7 @@ const LoginModal: React.FC<{
       // EmailJS Configuration - You need to replace these with your actual IDs from emailjs.com
       const SERVICE_ID = 'service_hlqygmo'; // e.g., 'service_xxxxx'
       const TEMPLATE_ID = 'template_0adcs3i'; // e.g., 'template_xxxxx'
-      const PUBLIC_KEY = 'gf34Vb82psslow0F'; // e.g., 'user_xxxxx'
+      const PUBLIC_KEY = 'R5zaUzpB9xS06L2SB'; // e.g., 'user_xxxxx'
 
       if (SERVICE_ID === 'YOUR_SERVICE_ID') {
         throw new Error('Please configure EmailJS IDs in App.tsx first');
