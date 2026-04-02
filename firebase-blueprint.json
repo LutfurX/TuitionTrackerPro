@@ -1,0 +1,73 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Information about the user's tuition settings.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" }
+      },
+      "required": ["uid"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "A student managed by the educator.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "startDate": { "type": "string", "format": "date", "description": "ISO 8601 date string (YYYY-MM-DD)" },
+        "tuitionTime": { "type": "string", "description": "Time of tuition (HH:MM)" },
+        "daysPerMonth": { "type": "number" },
+        "monthlySalary": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "startDate", "createdAt"]
+    },
+    "AttendanceRecord": {
+      "title": "Attendance Record",
+      "description": "A single teaching date record for a specific student.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "studentId": { "type": "string" },
+        "date": { "type": "string", "format": "date", "description": "ISO 8601 date string (YYYY-MM-DD)" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "studentId", "date", "createdAt"]
+    },
+    "SalaryRecord": {
+      "title": "Salary Record",
+      "description": "A salary payment record for a student.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "studentId": { "type": "string" },
+        "studentName": { "type": "string" },
+        "month": { "type": "string" },
+        "amount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "studentId", "studentName", "month", "amount", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile document."
+    },
+    "/users/{userId}/students/{studentId}": {
+      "schema": "Student",
+      "description": "Students managed by the user."
+    },
+    "/users/{userId}/attendance/{recordId}": {
+      "schema": "AttendanceRecord",
+      "description": "Attendance records for students."
+    },
+    "/users/{userId}/salary/{recordId}": {
+      "schema": "SalaryRecord",
+      "description": "Salary records for students."
+    }
+  }
+}

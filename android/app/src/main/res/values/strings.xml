@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Tuition Tracker Pro</string>
+    <string name="title_activity_main">Tuition Tracker Pro</string>
+    <string name="package_name">tuition.tracker.app</string>
+    <string name="custom_url_scheme">tuition.tracker.app</string>
+</resources>

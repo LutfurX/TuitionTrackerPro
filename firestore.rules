@@ -1,0 +1,127 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: /users/{userId}
+// Document ID: userId
+// Fields:
+//   - uid: string (required) - The user's UID
+//   - displayName: string (optional) - The user's display name
+//   - email: string (optional) - The user's email
+//
+// Collection: /users/{userId}/students/{studentId}
+// Document ID: studentId
+// Fields:
+//   - name: string (required) - The student's name
+//   - startDate: string (required) - ISO 8601 date string (YYYY-MM-DD)
+//   - createdAt: string (required) - ISO 8601 date-time string
+//
+// Collection: /users/{userId}/attendance/{recordId}
+// Document ID: recordId
+// Fields:
+//   - userId: string (required) - The user's UID
+//   - studentId: string (required) - The student's ID
+//   - date: string (required) - ISO 8601 date string (YYYY-MM-DD)
+//   - createdAt: string (required) - ISO 8601 date-time string
+//
+// Collection: /users/{userId}/salary/{recordId}
+// Document ID: recordId
+// Fields:
+//   - userId: string (required) - The user's UID
+//   - studentId: string (required) - The student's ID
+//   - studentName: string (required) - The student's name
+//   - month: string (required) - The month for the salary
+//   - amount: number (required) - The salary amount
+//   - createdAt: string (required) - ISO 8601 date-time string
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string &&
+        dateStr.matches("^\\d{4}-\\d{2}-\\d{2}.*$");
+    }
+
+    function isValidDateTimeString(dateTimeStr) {
+      return dateTimeStr is string &&
+        dateTimeStr.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['uid']) &&
+             data.uid is string && data.uid == request.auth.uid;
+    }
+
+    function isValidStudent(data) {
+      return data.keys().hasAll(['name', 'startDate', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             isValidDateString(data.startDate) &&
+             isValidDateTimeString(data.createdAt);
+    }
+
+    function isValidAttendance(data, userId) {
+      return data.keys().hasAll(['userId', 'studentId', 'date', 'createdAt']) &&
+             data.userId == userId &&
+             data.userId == request.auth.uid &&
+             data.studentId is string &&
+             isValidDateString(data.date) &&
+             isValidDateTimeString(data.createdAt);
+    }
+
+    function isValidSalary(data, userId) {
+      return data.keys().hasAll(['userId', 'studentId', 'studentName', 'month', 'amount', 'createdAt']) &&
+             data.userId == userId &&
+             data.userId == request.auth.uid &&
+             data.studentId is string &&
+             data.studentName is string && data.studentName.size() > 0 && data.studentName.size() < 100 &&
+             data.month is string &&
+             data.amount is number && data.amount >= 0 &&
+             isValidDateTimeString(data.createdAt);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId) && isValidUserProfile(request.resource.data);
+
+      match /students/{studentId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidStudent(request.resource.data);
+        allow update: if isOwner(userId) && isValidStudent(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /attendance/{recordId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidAttendance(request.resource.data, userId);
+        allow update: if isOwner(userId) && isValidAttendance(request.resource.data, userId);
+        allow delete: if isOwner(userId);
+      }
+
+      match /salary/{recordId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidSalary(request.resource.data, userId);
+        allow update: if isOwner(userId) && isValidSalary(request.resource.data, userId);
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}
