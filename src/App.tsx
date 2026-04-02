@@ -51,7 +51,7 @@ const LoginModal: React.FC<{
       setGeneratedOtp(code);
 
       // আপনার Vercel লিংকটি এখানে বসান
-      const API_BASE_URL = window.location.hostname === 'localhost' ? '' : 'https://tuition-tracker-pro.vercel.app';
+      const API_BASE_URL = window.location.hostname === 'localhost' ? '' : 'https://https://tuition-tracker-pro-ten.vercel.app';
       
       const response = await fetch(`${API_BASE_URL}/api/send-otp`, {
         method: 'POST',
