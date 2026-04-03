@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 import emailjs from '@emailjs/browser';
 import { 
   auth, 
@@ -905,7 +908,7 @@ const AppContent: React.FC = () => {
     }
   };
 
-  const handleBackup = () => {
+  const handleBackup = async () => {
     const backupData: BackupData = {
       students,
       attendance: allAttendance,
@@ -914,15 +917,42 @@ const AppContent: React.FC = () => {
       exportedAt: new Date().toISOString()
     };
 
-    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `tuition-tracker-backup-${format(new Date(), 'yyyy-MM-dd')}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const fileName = `tuition-tracker-backup-${format(new Date(), 'yyyy-MM-dd')}.json`;
+    const dataString = JSON.stringify(backupData, null, 2);
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        // Write file to cache directory temporarily
+        const result = await Filesystem.writeFile({
+          path: fileName,
+          data: dataString,
+          directory: Directory.Cache,
+          encoding: Encoding.UTF8,
+        });
+
+        // Share the file so user can save it or send it
+        await Share.share({
+          title: 'Tuition Tracker Backup',
+          text: 'Here is your tuition data backup file.',
+          url: result.uri,
+          dialogTitle: 'Save Backup',
+        });
+      } catch (error) {
+        console.error('Backup failed on mobile:', error);
+        alert('Failed to create backup on mobile. Please check permissions.');
+      }
+    } else {
+      // Web fallback
+      const blob = new Blob([dataString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
   };
 
   const handleRestore = async (e: React.ChangeEvent<HTMLInputElement>) => {
