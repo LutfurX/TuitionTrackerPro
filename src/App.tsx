@@ -56,10 +56,6 @@ const LoginModal: React.FC<{
       const TEMPLATE_ID = 'template_0adcs3i'; // e.g., 'template_xxxxx'
       const PUBLIC_KEY = 'R5zaUzpB9xS06L2SB'; // e.g., 'user_xxxxx'
 
-      if (SERVICE_ID === 'YOUR_SERVICE_ID') {
-        throw new Error('Please configure EmailJS IDs in App.tsx first');
-      }
-
       const templateParams = {
         to_email: email.trim(),
         passcode: code,
@@ -483,11 +479,84 @@ const ProfileModal: React.FC<{
   );
 };
 
+const SplashScreen: React.FC = () => {
+  return (
+    <motion.div
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.8, ease: [0.43, 0.13, 0.23, 0.96] }}
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900"
+    >
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        className="flex flex-col items-center gap-6"
+      >
+        <div className="w-24 h-24 bg-blue-600 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-blue-500/20">
+          <GraduationCap size={48} className="text-white" />
+        </div>
+        <div className="text-center">
+          <motion.h1 
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="text-3xl font-black text-white tracking-tight"
+          >
+            Tuition Tracker <span className="text-blue-500">Pro</span>
+          </motion.h1>
+          <motion.p 
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="text-slate-400 font-medium mt-2"
+          >
+            Manage your tuitions with ease
+          </motion.p>
+        </div>
+      </motion.div>
+      
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2, duration: 0.5 }}
+        className="absolute bottom-12 flex flex-col items-center gap-2"
+      >
+        <div className="flex gap-1">
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              animate={{
+                scale: [1, 1.5, 1],
+                opacity: [0.3, 1, 0.3],
+              }}
+              transition={{
+                duration: 1,
+                repeat: Infinity,
+                delay: i * 0.2,
+              }}
+              className="w-1.5 h-1.5 bg-blue-500 rounded-full"
+            />
+          ))}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 const AppContent: React.FC = () => {
+  const [showSplash, setShowSplash] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showStatusToast, setShowStatusToast] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     // AdMob ইনিশিয়ালাইজ করা
@@ -1104,17 +1173,6 @@ const AppContent: React.FC = () => {
     setReminders(prev => prev.filter(r => r.id !== id));
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <motion.div 
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-          className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"
-        />
-      </div>
-    );
-  }
 
   const days = eachDayOfInterval({
     start: startOfMonth(currentMonth),
@@ -1122,8 +1180,28 @@ const AppContent: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
-      <AppOpenAd />
+    <AnimatePresence mode="wait">
+      {showSplash ? (
+        <SplashScreen key="splash" />
+      ) : (
+        <motion.div
+          key="main-content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="min-h-screen bg-slate-50 pb-24"
+        >
+          {loading ? (
+            <div className="min-h-screen flex items-center justify-center bg-slate-50">
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full"
+              />
+            </div>
+          ) : (
+            <>
+              <AppOpenAd />
       {/* Reminders Overlay */}
       <div className="fixed top-4 left-4 right-4 z-[100] pointer-events-none space-y-3">
         <AnimatePresence>
@@ -2011,7 +2089,11 @@ const AppContent: React.FC = () => {
         onClose={() => setIsLoginOpen(false)}
         onSuccess={(u) => setUser(u)}
       />
-    </div>
+            </>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Play, Info } from 'lucide-react';
-import { AdMob, BannerAdPosition, BannerAdSize, BannerAdPluginEvents, AdMobBannerSize } from '@capacitor-community/admob';
+import { AdMob, BannerAdPosition, BannerAdSize, BannerAdPluginEvents, AdMobBannerSize, RewardAdPluginEvents } from '@capacitor-community/admob';
 
 // --- AD UNIT IDs ---
 // Replace these with your REAL IDs from AdMob Console
@@ -46,7 +46,7 @@ export const BannerAd: React.FC = () => {
 export const initializeAdMob = async () => {
   try {
     await AdMob.initialize({
-      requestTrackingAuthorization: true,
+      // requestTrackingAuthorization: true, // Removed as it might not be in the type
     });
     console.log('AdMob Initialized');
   } catch (e) {
@@ -114,12 +114,18 @@ export const useRewardedAd = () => {
       isTesting: true
     });
 
-    const rewardListener = AdMob.addListener('onRewardedVideoAdReward', (info) => {
-      if (onReward) onReward();
-    });
+    let rewardListener: any;
+
+    const setupListener = async () => {
+      rewardListener = await AdMob.addListener(RewardAdPluginEvents.Rewarded, (info) => {
+        if (onReward) onReward();
+      });
+    };
+
+    setupListener();
 
     return () => {
-      rewardListener.remove();
+      if (rewardListener) rewardListener.remove();
     };
   }, [onReward]);
 
