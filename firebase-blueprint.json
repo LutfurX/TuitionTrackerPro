@@ -50,6 +50,54 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "studentId", "studentName", "month", "amount", "createdAt"]
+    },
+    "Exam": {
+      "title": "Exam",
+      "description": "An exam record for a student or teacher.",
+      "type": "object",
+      "properties": {
+        "subject": { "type": "string" },
+        "customSubject": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "totalMarks": { "type": "number" },
+        "obtainedMarks": { "type": "number" },
+        "studentId": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "uid": { "type": "string" }
+      },
+      "required": ["subject", "date", "totalMarks", "obtainedMarks", "createdAt", "uid"]
+    },
+    "Journal": {
+      "title": "Journal",
+      "description": "A class journal entry describing what was taught.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "studentId": { "type": "string" },
+        "teacherId": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "subject": { "type": "string" },
+        "customSubject": { "type": "string" },
+        "content": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "date", "subject", "content", "createdAt"]
+    },
+    "Reminder": {
+      "title": "Reminder",
+      "description": "A reminder for a class or payment.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["class", "payment"] },
+        "studentId": { "type": "string" },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "message", "type", "isRead", "createdAt"]
     }
   },
   "firestore": {
@@ -68,6 +116,18 @@
     "/users/{userId}/salary/{recordId}": {
       "schema": "SalaryRecord",
       "description": "Salary records for students."
+    },
+    "/users/{userId}/exams/{examId}": {
+      "schema": "Exam",
+      "description": "Exam records for students or teachers."
+    },
+    "/users/{userId}/journal/{journalId}": {
+      "schema": "Journal",
+      "description": "Class journal entries."
+    },
+    "/users/{userId}/reminders/{reminderId}": {
+      "schema": "Reminder",
+      "description": "Reminders for classes and payments."
     }
   }
 }

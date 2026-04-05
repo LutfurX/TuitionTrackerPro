@@ -19,6 +19,7 @@ import {
   setDoc, 
   getDoc, 
   getDocs, 
+  addDoc,
   deleteDoc, 
   updateDoc, 
   query, 
@@ -28,11 +29,14 @@ import {
   Timestamp, 
   getDocFromServer 
 } from 'firebase/firestore';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import firebaseConfig from '../firebase-applet-config.json';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const functions = getFunctions(app);
+export { httpsCallable };
 
 // Initialize Firestore with offline persistence
 export const db = initializeFirestore(app, {
@@ -117,6 +121,7 @@ export {
   setDoc, 
   getDoc, 
   getDocs, 
+  addDoc,
   deleteDoc, 
   updateDoc,
   query, 
